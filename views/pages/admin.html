@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="/mdui-v0.4.1/css/mdui.min.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/mdui-v0.4.1/js/mdui.min.js"></script>
+    <script type="text/javascript" src="/js/xlsx.full.min.js"></script>
+    <script type="text/javascript" src="/js/Blob.js"></script>
+    <script type="text/javascript" src="/js/FileSaver.js"></script>
+    <title>设备报修后台</title>
+</head>
+
+<body class="mdui-appbar-with-toolbar">
+    <!-- 头部 -->
+    <header class="mdui-appbar mdui-appbar-fixed mdui-color-blue-a400" id="content-header">
+        <div class="mdui-toolbar">
+            <a href="/admin" class="mdui-typo-headline mdui-hidden-xs">设备报修后台 -
+                <span style="font-size: 16px;">第
+                    <%= data.currentPage %>页/共
+                        <%= data.allPage %>页</span>
+            </a>
+            <% if(parseInt(data.currentPage) == 1){ %>
+                <a>
+                    <button class="mdui-btn mdui-color-blue-a200 mdui-ripple mdui-center" onclick="urlopen('<%= data.goto %>1')">
+                        上一页</button>
+                </a>
+                <% }else{ %>
+                    <a>
+                        <button class="mdui-btn mdui-color-blue-a200 mdui-ripple mdui-center" onclick="urlopen('<%= data.goto %><%= parseInt(data.currentPage) - 1 %>')">
+                            上一页</button>
+                    </a>
+                    <% } %>
+                        <% if(parseInt(data.currentPage) == parseInt(data.allPage)){ %>
+                            <a>
+                                <button class="mdui-btn mdui-color-blue-a200 mdui-ripple mdui-center" onclick="urlopen('<%= data.goto %><%= data.allPage %>')">
+                                    下一页</button>
+                            </a>
+                            <% }else{ %>
+                                <a>
+                                    <button class="mdui-btn mdui-color-blue-a200 mdui-ripple mdui-center" onclick="urlopen('<%= data.goto %><%= parseInt(data.currentPage) + 1 %>')">下一页</button>
+                                </a>
+                                <% } %>
+                                    <a>
+                                        <button class="mdui-btn mdui-color-blue-a200 mdui-ripple mdui-center" mdui-dialog="{target: '#page-dialog'}">
+                                            跳转</button>
+                                    </a>
+                                    <a>
+                                        <button class="mdui-btn mdui-color-blue-a200 mdui-ripple mdui-center" mdui-dialog="{target: '#search-dialog'}">
+                                            查询</button>
+                                    </a>
+                                    <div class="mdui-toolbar-spacer"></div>
+                                    <a href="javascript:;" class="mdui-btn mdui-btn-icon" mdui-tooltip="{content: '导出'}" mdui-dialog="{target: '#export-dialog'}">
+                                        <i class="mdui-icon material-icons">&#xe2c4;</i>
+                                    </a>
+        </div>
+    </header>
+    <!-- 内容 -->
+    <div class="mdui-container mdui-m-t-3 mdui-m-b-3">
+        <table id="ques-table" class="mdui-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>设备名称</th>
+                    <th>设备编号</th>
+                    <!-- <th mdui-tooltip="{content: '下拉框选择的内容'}">选择内容</th>
+                    <th mdui-tooltip="{content: '文本域描述的内容'}">描述内容</th> -->
+                    <th>选择内容</th>
+                    <th>描述内容</th>
+                    <th>报修时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <% 
+                if(data.ques.length != 0){
+                    for(var i=0; i<data.ques.length;i++){ 
+                        var ques = data.ques[i];
+                    %>
+                    <tr>
+                        <td>
+                            <%= i+1 %>
+                        </td>
+                        <td>
+                            <%= ques.deviceName %>
+                        </td>
+                        <td>
+                            <%= ques.deviceId %>
+                        </td>
+                        <td>
+                            <%= ques.selectContent %>
+                        </td>
+                        <td>
+                            <%= ques.textareaContent %>
+                        </td>
+                        <td>
+                            <%= dateFormat(ques.createTime) %>
+                        </td>
+                    </tr>
+                    <% }}else{ %>
+                        <tr>
+                            <td>
+                                无查询数据
+                            </td>
+                        </tr>
+                        <% } %>
+            </tbody>
+        </table>
+    </div>
+    <div class="mdui-dialog" id="export-dialog">
+        <div class="mdui-dialog-title">请选择导出格式</div>
+        <div class="mdui-list">
+            <!-- <a href="#" class="mdui-list-item mdui-ripple" onclick="exportExcel('<%= data.currentPage %>', 'biff8', '设备保修第<%= data.currentPage %>页.xls');">
+                XLS (Excel版本：97-2004)</a> -->
+            <a href="#" class="mdui-list-item mdui-ripple" onclick="exportExcel('<%= data.currentPage %>','xlsx');">XLSX (Excel版本：2007+)</a>
+        </div>
+        <div class="mdui-dialog-actions">
+            <button class="mdui-btn mdui-ripple" mdui-dialog-close>取消</button>
+        </div>
+    </div>
+    <div class="mdui-dialog" id="page-dialog">
+        <div class="mdui-dialog-content">
+            <div class="mdui-textfield mdui-textfield-floating-label">
+                <label class="mdui-textfield-label">请输入页码</label>
+                <input class="mdui-textfield-input input-page" min="1" max="<%= data.allPage %>" type="number" />
+            </div>
+        </div>
+        <div class="mdui-dialog-actions">
+            <button class="mdui-btn mdui-ripple" mdui-dialog-close>取消</button>
+            <button class="mdui-btn mdui-ripple" onclick="gotoPage()">跳转</button>
+        </div>
+    </div>
+    <div class="mdui-dialog" id="search-dialog">
+        <div class="mdui-dialog-content">
+            <div class="mdui-container-fluid">
+                <div class="mdui-row">
+                    <div class="mdui-col-xs-6">
+                        <div class="mdui-textfield">
+                            <label class="mdui-textfield-label">设备名称</label>
+                            <input id="deviceName" class="mdui-textfield-input" type="text" value="<%= data.query.deviceName %>"/>
+                        </div>
+                    </div>
+                    <div class="mdui-col-xs-6">
+                        <div class="mdui-textfield">
+                            <label class="mdui-textfield-label">设备编号</label>
+                            <input id="deviceId" class="mdui-textfield-input" type="text"  value="<%= data.query.deviceId %>"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="mdui-row mdui-m-t-2" style="height: 60px;">
+                    <div class="mdui-col-xs-6" style="height: 60px;">
+                        <div class="mdui-typo">
+                            起始时间：<input id="beginDate" class="mdui-textfield-input mdui-m-t-1" type="date" value="<%= data.query.beginDate %>"/>
+                        </div>
+                    </div>
+                    <div class="mdui-col-xs-6" style="height: 60px;">
+                        <div class="mdui-typo">
+                            结束时间：<input id="endDate" class="mdui-textfield-input mdui-m-t-1" type="date" value="<%= data.query.endDate %>" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mdui-dialog-actions">
+            <button class="mdui-btn mdui-ripple" mdui-dialog-close>取消</button>
+            <button class="mdui-btn mdui-ripple" onclick="clearSearch()">清除</button>
+            <button class="mdui-btn mdui-ripple" onclick="searchDevice()">查询</button>
+        </div>
+    </div>
+    
+    <script>
+        function clearSearch(){
+            $("#deviceName").val("");
+            $("#deviceId").val("");
+            $("#beginDate").val("");
+            $("#endDate").val("");
+        }
+
+        function searchDevice(){
+            var deviceName = $("#deviceName").val();
+            var deviceId = $("#deviceId").val();
+            var beginDate = $("#beginDate").val();
+            var endDate = $("#endDate").val();
+            urlopen(`/admin/?devicename=${deviceName}&deviceid=${deviceId}&begindate=${beginDate}&enddate=${endDate}`);
+        }
+
+        function exportExcel(page, type, fn, dl) {
+            event.preventDefault();
+            var elt = document.getElementById('ques-table');
+            var wb = XLSX.utils.table_to_book(elt, { sheet: "Sheet JS" });
+            // var inst = new mdui.Dialog('#export-dialog');
+            // inst.close();
+            return dl ?
+                XLSX.write(wb, { bookType: type, bookSST: true, type: 'base64' }) :
+                XLSX.writeFile(wb, fn || ('设备保修第' + page + '页.' + (type || 'xlsx')));
+        }
+
+        function gotoPage() {
+            var page = $(".input-page").val();
+            urlopen("<%= data.goto %>" + page);
+        }
+
+        function urlopen(url) {
+            window.location.href = url;
+        }
+    </script>
+</body>
+
+</html>

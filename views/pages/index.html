@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="/mdui-v0.4.1/css/mdui.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <script type="text/javascript" src="/mdui-v0.4.1/js/mdui.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/main.js"></script>
+    <title>设备报修</title>
+</head>
+
+<body>
+    <div class="title">设备报修</div>
+    <div class="mdui-container mdui-m-t-5">
+        <div class="mdui-row">
+            <div class="devicename mdui-m-b-3">设备名称：
+                <%= devicename %>
+            </div>
+            <div class="deviceid mdui-m-b-3">设备编号：
+                <%= deviceid %>
+            </div>
+            <select class="mdui-select select-content" mdui-select>
+                <option value="1" selected disabled>请选择设备问题现状</option>
+                <option value="2">无法正常开机</option>
+                <option value="3">屏幕显示不正常</option>
+                <option value="4">USB接口无法正常使用</option>
+                <option value="5">声卡工作不正常</option>
+                <option value="6">其他原因</option>
+            </select>
+            <div class="mdui-textfield mdui-m-t-3">
+                <textarea class="mdui-textfield-input textarea-content" rows="5" placeholder="请描述详细设备问题现状"></textarea>
+            </div>
+            <button class="mdui-btn mdui-color-blue-a200 mdui-ripple mdui-btn-block mdui-m-t-3" onclick="submit()">提交反馈</button>
+        </div>
+    </div>
+    <script>
+        function submit() {
+            var select = document.querySelector(".select-content");
+            var textarea = document.querySelector(".textarea-content");
+
+            var deviceId = "<%= deviceid %>";
+            var deviceName = "<%= devicename %>";
+            var selectContent = select.options[select.selectedIndex].text.trim();
+            var textareaContent = textarea.value.trim();
+
+            if (deviceId == "" || deviceName == "") {
+                mdui.alert("url格式不正确", "提示", function () { }, {
+                    confirmText: "确定"
+                });
+            } else if (selectContent != "请选择设备问题现状" || textareaContent != "") {
+                selectContent = selectContent == "请选择设备问题现状" ? "" : selectContent;
+                mdui.confirm('是否确认提交该设备问题现状', '提示', function () {
+                    $.ajax({
+                        method: "post",
+                        url: "/submitquestion",
+                        data: {
+                            deviceId,
+                            deviceName,
+                            selectContent,
+                            textareaContent,
+                        },
+                        success: function (data) {
+                            if (data.result == 1) {
+                                mdui.alert("提交成功", "提交结果", function () { }, {
+                                    confirmText: "确定"
+                                });
+                            }
+                        }
+                    });
+                }, function () { }, {
+                        confirmText: "确定",
+                        cancelText: "取消"
+                    });
+            } else {
+                mdui.alert("请选择或描述设备问题现状", "提示", function () { }, {
+                    confirmText: "确定"
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>
