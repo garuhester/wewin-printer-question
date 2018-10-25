@@ -1,5 +1,6 @@
 var question = require("./question");
 var moment = require("moment");
+var yunpian = require("./yunpian");
 
 module.exports = function (app) {
 
@@ -10,9 +11,11 @@ module.exports = function (app) {
     app.get("/", function (req, res) {
         var deviceid = req.query.deviceid;
         var devicename = req.query.devicename;
+        var tel = req.query.tel;
         res.render("index", {
             deviceid,
             devicename,
+            tel
         });
     });
 
@@ -37,5 +40,13 @@ module.exports = function (app) {
     });
 
     app.post("/submitquestion", question.submitQuestion);
+
+    app.post("/getSendtel", question.getSendtel);
+
+    app.post("/addSendtel", question.addSendtel);
+
+    app.post("/delSendtel", question.delSendtel);
+
+    app.post("/sendInfo", yunpian.sendInfo);
 
 }

@@ -12,6 +12,35 @@
     <script type="text/javascript" src="/js/Blob.js"></script>
     <script type="text/javascript" src="/js/FileSaver.js"></script>
     <title>设备报修后台</title>
+    <style>
+        .nodata {
+            padding: 20px;
+        }
+
+        .mdui-textfield {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .addtel {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        #tel-dialog{
+            height: 80%;
+            width: 50%;
+        }
+
+        .sendtel {
+            text-align: center;
+        }
+
+        .mdui-snackbar-top{
+            background: #fff;
+            color: #000;
+        }
+    </style>
 </head>
 
 <body class="mdui-appbar-with-toolbar">
@@ -52,6 +81,10 @@
                                         <button class="mdui-btn mdui-color-blue-a200 mdui-ripple mdui-center" mdui-dialog="{target: '#search-dialog'}">
                                             查询</button>
                                     </a>
+                                    <a>
+                                        <button class="mdui-btn mdui-color-blue-a200 mdui-ripple mdui-center" onclick="openDialog()">
+                                            设置手机号</button>
+                                    </a>
                                     <div class="mdui-toolbar-spacer"></div>
                                     <a href="javascript:;" class="mdui-btn mdui-btn-icon" mdui-tooltip="{content: '导出'}" mdui-dialog="{target: '#export-dialog'}">
                                         <i class="mdui-icon material-icons">&#xe2c4;</i>
@@ -66,6 +99,7 @@
                     <th>#</th>
                     <th>设备名称</th>
                     <th>设备编号</th>
+                    <th>手机号码</th>
                     <!-- <th mdui-tooltip="{content: '下拉框选择的内容'}">选择内容</th>
                     <th mdui-tooltip="{content: '文本域描述的内容'}">描述内容</th> -->
                     <th>选择内容</th>
@@ -74,7 +108,7 @@
                 </tr>
             </thead>
             <tbody>
-                
+
                 <% 
                 if(data.ques.length != 0){
                     for(var i=0; i<data.ques.length;i++){ 
@@ -89,6 +123,9 @@
                         </td>
                         <td>
                             <%= ques.deviceId %>
+                        </td>
+                        <td>
+                            <%= ques.tel %>
                         </td>
                         <td>
                             <%= ques.selectContent %>
@@ -140,25 +177,27 @@
                     <div class="mdui-col-xs-6">
                         <div class="mdui-textfield">
                             <label class="mdui-textfield-label">设备名称</label>
-                            <input id="deviceName" class="mdui-textfield-input" type="text" value="<%= data.query.deviceName %>"/>
+                            <input id="deviceName" class="mdui-textfield-input" type="text" value="<%= data.query.deviceName %>" />
                         </div>
                     </div>
                     <div class="mdui-col-xs-6">
                         <div class="mdui-textfield">
                             <label class="mdui-textfield-label">设备编号</label>
-                            <input id="deviceId" class="mdui-textfield-input" type="text"  value="<%= data.query.deviceId %>"/>
+                            <input id="deviceId" class="mdui-textfield-input" type="text" value="<%= data.query.deviceId %>" />
                         </div>
                     </div>
                 </div>
                 <div class="mdui-row mdui-m-t-2" style="height: 60px;">
                     <div class="mdui-col-xs-6" style="height: 60px;">
                         <div class="mdui-typo">
-                            起始时间：<input id="beginDate" class="mdui-textfield-input mdui-m-t-1" type="date" value="<%= data.query.beginDate %>"/>
+                            起始时间：
+                            <input id="beginDate" class="mdui-textfield-input mdui-m-t-1" type="date" value="<%= data.query.beginDate %>" />
                         </div>
                     </div>
                     <div class="mdui-col-xs-6" style="height: 60px;">
                         <div class="mdui-typo">
-                            结束时间：<input id="endDate" class="mdui-textfield-input mdui-m-t-1" type="date" value="<%= data.query.endDate %>" />
+                            结束时间：
+                            <input id="endDate" class="mdui-textfield-input mdui-m-t-1" type="date" value="<%= data.query.endDate %>" />
                         </div>
                     </div>
                 </div>
@@ -170,16 +209,132 @@
             <button class="mdui-btn mdui-ripple" onclick="searchDevice()">查询</button>
         </div>
     </div>
-    
+    <div class="mdui-dialog" id="tel-dialog" style="overflow:auto">
+        <div class="mdui-container-fluid">
+            <div class="mdui-row">
+                <div class="mdui-col-xs-9">
+                    <div class="mdui-textfield">
+                        <input class="mdui-textfield-input sendtel" type="text" placeholder="请输入手机号码" />
+                    </div>
+                </div>
+                <div class="mdui-col-xs-3">
+                    <button class="mdui-btn mdui-color-blue-accent mdui-ripple mdui-btn-block addtel" onclick="addTel()">添加</button>
+                </div>
+            </div>
+        </div>
+        <table class="mdui-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>手机号</th>
+                    <th class="mdui-table-col-numeric">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tbody-list"></tbody>
+        </table>
+    </div>
+
     <script>
-        function clearSearch(){
+        var tel = new mdui.Dialog('#tel-dialog');
+        function openDialog(obj) {
+            getSendtel(function () {
+                tel.open();
+            });
+        }
+
+        function getSendtel(func) {
+            $.ajax({
+                method: 'post',
+                url: '/getSendtel',
+                success: function (data) {
+                    // console.log(data)
+                    $("#tbody-list").html("");
+                    var html = "";
+                    if (data.result != null && data.result.length != 0) {
+                        for (var i = 0; i < data.result.length; i++) {
+                            var u = data.result[i];
+                            html += `
+                            <tr>
+                                <td>${i + 1}</td>
+                                <td>${u.tel}</td>
+                                <td class="mdui-table-col-numeric"><button id="${u._id}" class="mdui-btn mdui-color-blue-accent mdui-ripple" onclick="delTel(this)">删除</button></td>
+                            </tr>
+                            `;
+                        }
+                    } else {
+                        html = "<div class='nodata'>无数据</div>";
+                    }
+
+                    $("#tbody-list").html(html);
+                    func();
+                }
+            });
+        }
+        
+        function delTel(obj){
+            var id = obj.id;
+            var res = confirm('是否删除该手机号码');
+            if(res){
+                $.ajax({
+                    method: 'post',
+                    url: '/delSendtel',
+                    data: {
+                        id,
+                    },
+                    success: function (data) {
+                        if (data.result == 1) {
+                            getSendtel(function () {
+                                mdui.snackbar({
+                                    message: '删除成功',
+                                    position: 'top'
+                                });
+                            });
+                        }
+                    }
+                });
+            }
+        }
+
+        function addTel() {
+            var tel = $(".sendtel").val();
+            if(testPhone(tel)){
+                $.ajax({
+                    method: 'post',
+                    url: '/addSendtel',
+                    data: {
+                        tel,
+                    },
+                    success: function (data) {
+                        getSendtel(function () {
+                            $(".sendtel").val("");
+                            mdui.snackbar({
+                                message: '添加成功',
+                                position: 'top'
+                            });
+                        });
+                    }
+                });
+            }else{
+                mdui.snackbar({
+                    message: '请输入正确的手机号码',
+                    position: 'top'
+                });
+            }
+        }
+
+        function testPhone(num) {
+            var reg = /^1[0-9]{10}$/;
+            return reg.test(num);
+        }
+
+        function clearSearch() {
             $("#deviceName").val("");
             $("#deviceId").val("");
             $("#beginDate").val("");
             $("#endDate").val("");
         }
 
-        function searchDevice(){
+        function searchDevice() {
             var deviceName = $("#deviceName").val();
             var deviceId = $("#deviceId").val();
             var beginDate = $("#beginDate").val();

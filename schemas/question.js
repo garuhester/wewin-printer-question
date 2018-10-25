@@ -4,6 +4,7 @@ var Schema = mongoose.Schema;
 var QuestionSchema = new Schema({
     deviceId: String,
     deviceName: String,
+    tel: String,
     selectContent: String,
     textareaContent: String,
     createTime: { type: Date, default: Date.now }

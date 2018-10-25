@@ -1,15 +1,18 @@
 var Question = require('../schemas/question');
+var Sendtel = require('../schemas/sendtel');
 var moment = require("moment");
 
 var submitQuestion = function (req, res) {
     var deviceId = req.body.deviceId;
     var deviceName = req.body.deviceName;
+    var tel = req.body.tel;
     var selectContent = req.body.selectContent;
     var textareaContent = req.body.textareaContent;
 
     var question = new Question({
         deviceId,
         deviceName,
+        tel,
         selectContent,
         textareaContent,
     });
@@ -19,10 +22,33 @@ var submitQuestion = function (req, res) {
     });
 }
 
+var addSendtel = function (req, res) {
+    var tel = req.body.tel;
+    var sendtel = new Sendtel({
+        tel: tel
+    });
+    sendtel.save(function (err, tel) {
+        res.json({ result: 1 });
+    });
+}
+
+var getSendtel = function (req, res) {
+    Sendtel.find({}, function (err, tel) {
+        res.json({ result: tel });
+    });
+}
+
+var delSendtel = function (req, res) {
+    var id = req.body.id;
+    Sendtel.findOneAndRemove(id, function (err, result) {
+        res.json({ result: 1 });
+    });
+}
+
 var getAdminQuestion = function (currentPage, query) {
     return new Promise(function (resolve, reject) {
         //一页最大条数
-        var pageSize = 50;
+        var pageSize = 100;
         var skipNum = (currentPage - 1) * pageSize;
         var data = {};
         //页面跳转字符
@@ -94,4 +120,7 @@ var getAdminQuestion = function (currentPage, query) {
 module.exports = {
     submitQuestion,
     getAdminQuestion,
+    addSendtel,
+    getSendtel,
+    delSendtel
 }

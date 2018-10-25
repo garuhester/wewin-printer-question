@@ -23,6 +23,9 @@
             <div class="deviceid mdui-m-b-3">设备编号：
                 <%= deviceid %>
             </div>
+            <div class="deviceid mdui-m-b-3">手机号码：
+                <%= tel %>
+            </div>
             <select class="mdui-select select-content" mdui-select>
                 <option value="1" selected disabled>请选择设备问题现状</option>
                 <option value="2">无法正常开机</option>
@@ -44,10 +47,11 @@
 
             var deviceId = "<%= deviceid %>";
             var deviceName = "<%= devicename %>";
+            var tel = "<%= tel %>";
             var selectContent = select.options[select.selectedIndex].text.trim();
             var textareaContent = textarea.value.trim();
 
-            if (deviceId == "" || deviceName == "") {
+            if (deviceId == "" || deviceName == "" || tel == "") {
                 mdui.alert("url格式不正确", "提示", function () { }, {
                     confirmText: "确定"
                 });
@@ -60,13 +64,45 @@
                         data: {
                             deviceId,
                             deviceName,
+                            tel,
                             selectContent,
                             textareaContent,
                         },
-                        success: function (data) {
-                            if (data.result == 1) {
-                                mdui.alert("提交成功", "提交结果", function () { }, {
-                                    confirmText: "确定"
+                        success: function (data1) {
+                            if (data1.result == 1) {
+                                $.ajax({
+                                    method: "post",
+                                    url: "/getSendtel",
+                                    success: function (data2) {
+                                        var tels = [];
+                                        if (data2.result != null && data2.result.length != 0) {
+                                            for (var i = 0; i < data2.result.length; i++) {
+                                                var u = data2.result[i];
+                                                tels.push(u.tel);
+                                            }
+                                            for (var i = 0; i < tels.length; i++) {
+                                                (function(i){
+                                                    $.ajax({
+                                                        method: "post",
+                                                        url: "/sendInfo",
+                                                        data: {
+                                                            phone: tels[i]
+                                                        },
+                                                        success: function (data3) {
+                                                            if (data3.result == 1) {
+                                                                console.log(tels[i] + "-" + data3.postResult);
+                                                            }
+                                                        }
+                                                    });
+                                                })(i);
+                                            }
+                                        } else {
+                                            console.log("没有需要发送短信的手机号");
+                                        }
+                                        mdui.alert("提交成功", "提交结果", function () { }, {
+                                            confirmText: "确定"
+                                        });
+                                    }
                                 });
                             }
                         }

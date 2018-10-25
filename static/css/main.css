@@ -16,7 +16,8 @@ html {
     color: #999;
 }
 
-.devicename, .deviceid {
+.devicename,
+.deviceid {
     font-size: 16px;
     word-wrap: break-word;
 }
