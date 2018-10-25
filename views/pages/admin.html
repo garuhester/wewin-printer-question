@@ -253,13 +253,11 @@
                     if (data.result != null && data.result.length != 0) {
                         for (var i = 0; i < data.result.length; i++) {
                             var u = data.result[i];
-                            html += `
-                            <tr>
-                                <td>${i + 1}</td>
-                                <td>${u.tel}</td>
-                                <td class="mdui-table-col-numeric"><button id="${u._id}" class="mdui-btn mdui-color-blue-accent mdui-ripple" onclick="delTel(this)">删除</button></td>
-                            </tr>
-                            `;
+                            html += "<tr>";
+                            html += "    <td>" + (i+1) + "<\/td>";
+                            html += "    <td>" + u.tel + "<\/td>";
+                            html += "    <td class=\"mdui-table-col-numeric\"><button id=\"" + u._id + "\" class=\"mdui-btn mdui-color-blue-accent mdui-ripple\" onclick=\"delTel(this)\">删除<\/button><\/td>";
+                            html += "<\/tr>";
                         }
                     } else {
                         html = "<div class='nodata'>无数据</div>";
@@ -279,7 +277,7 @@
                     method: 'post',
                     url: '/delSendtel',
                     data: {
-                        id,
+                        id: id
                     },
                     success: function (data) {
                         if (data.result == 1) {
@@ -302,7 +300,7 @@
                     method: 'post',
                     url: '/addSendtel',
                     data: {
-                        tel,
+                        tel: tel
                     },
                     success: function (data) {
                         getSendtel(function () {
@@ -339,7 +337,7 @@
             var deviceId = $("#deviceId").val();
             var beginDate = $("#beginDate").val();
             var endDate = $("#endDate").val();
-            urlopen(`/admin/?devicename=${deviceName}&deviceid=${deviceId}&begindate=${beginDate}&enddate=${endDate}`);
+            urlopen("/admin/?devicename=" + deviceName + "&deviceid=" + deviceId + "&begindate=" + beginDate + "&enddate=" + endDate);
         }
 
         function exportExcel(page, type, fn, dl) {
@@ -350,7 +348,7 @@
             // inst.close();
             return dl ?
                 XLSX.write(wb, { bookType: type, bookSST: true, type: 'base64' }) :
-                XLSX.writeFile(wb, fn || ('设备保修第' + page + '页.' + (type || 'xlsx')));
+                XLSX.writeFile(wb, fn || ('设备报修第' + page + '页.' + (type || 'xlsx')));
         }
 
         function gotoPage() {
