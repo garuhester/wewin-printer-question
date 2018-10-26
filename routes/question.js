@@ -40,7 +40,7 @@ var getSendtel = function (req, res) {
 
 var delSendtel = function (req, res) {
     var id = req.body.id;
-    Sendtel.findOneAndRemove(id, function (err, result) {
+    Sendtel.findByIdAndRemove(id, function (err, result) {
         res.json({ result: 1 });
     });
 }
