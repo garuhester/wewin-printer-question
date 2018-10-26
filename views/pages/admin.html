@@ -354,13 +354,21 @@
                         tel: tel
                     },
                     success: function (data) {
-                        getSendtel(function () {
+                        if(data.result == 1){
+                            getSendtel(function () {
+                                $(".sendtel").val("");
+                                mdui.snackbar({
+                                    message: '添加成功',
+                                    position: 'top'
+                                });
+                            });
+                        }else if(data.result == -1){
                             $(".sendtel").val("");
                             mdui.snackbar({
-                                message: '添加成功',
+                                message: '手机号已存在，请重新输入',
                                 position: 'top'
                             });
-                        });
+                        }
                     }
                 });
             } else {

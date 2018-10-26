@@ -24,11 +24,17 @@ var submitQuestion = function (req, res) {
 
 var addSendtel = function (req, res) {
     var tel = req.body.tel;
-    var sendtel = new Sendtel({
-        tel: tel
-    });
-    sendtel.save(function (err, tel) {
-        res.json({ result: 1 });
+    Sendtel.findOne({ "tel": tel }, function (err, result) {
+        if (result == null) {
+            var sendtel = new Sendtel({
+                tel: tel
+            });
+            sendtel.save(function (err, tel) {
+                res.json({ result: 1 });
+            });
+        } else {
+            res.json({ result: -1 });
+        }
     });
 }
 
