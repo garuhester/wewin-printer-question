@@ -27,18 +27,39 @@
             margin-bottom: 10px;
         }
 
-        #tel-dialog{
+        #tel-dialog {
             height: 80%;
-            width: 50%;
+            width: 60%;
         }
 
         .sendtel {
             text-align: center;
         }
 
-        .mdui-snackbar-top{
+        .mdui-snackbar-top {
             background: #fff;
             color: #000;
+        }
+
+        .phoneshow {
+            display: none;
+        }
+
+        .mdui-btn {
+            min-width: 0px;
+        }
+
+        @media (max-width:930px) {
+            .phoneshow {
+                display: block;
+            }
+            .phonea {
+                display: none;
+            }
+            #tel-dialog {
+                height: 80%;
+                width: 80%;
+            }
         }
     </style>
 </head>
@@ -47,16 +68,21 @@
     <!-- 头部 -->
     <header class="mdui-appbar mdui-appbar-fixed mdui-color-blue-a400" id="content-header">
         <div class="mdui-toolbar">
-            <a href="/admin" class="mdui-typo-headline mdui-hidden-xs">设备报修后台 -
+            <span class="phoneshow mdui-btn mdui-btn-icon mdui-ripple mdui-ripple-white" mdui-drawer="{target: '#content-drawer', swipe: true}">
+                <i class="mdui-icon material-icons">menu</i>
+            </span>
+            <span class="phoneshow" onclick="urlopen('/admin')">
+                设备报修后台</span>
+            <a href="/admin" class="mdui-typo-headline mdui-hidden-xs phonea">设备报修后台 -
                 <span style="font-size: 16px;">第
                     <%= data.currentPage %>页/共
                         <%= data.allPage %>页</span>
             </a>
             <% if(parseInt(data.currentPage) == 1){ %>
-                <a>
+                <a class="phonea">
                     <button class="mdui-btn mdui-color-blue-a200 mdui-ripple mdui-center" onclick="urlopen('<%= data.goto %>1')">
                         上一页</button>
-                </a>
+                </a class="phonea">
                 <% }else{ %>
                     <a>
                         <button class="mdui-btn mdui-color-blue-a200 mdui-ripple mdui-center" onclick="urlopen('<%= data.goto %><%= parseInt(data.currentPage) - 1 %>')">
@@ -64,88 +90,111 @@
                     </a>
                     <% } %>
                         <% if(parseInt(data.currentPage) == parseInt(data.allPage)){ %>
-                            <a>
+                            <a class="phonea">
                                 <button class="mdui-btn mdui-color-blue-a200 mdui-ripple mdui-center" onclick="urlopen('<%= data.goto %><%= data.allPage %>')">
                                     下一页</button>
                             </a>
                             <% }else{ %>
-                                <a>
+                                <a class="phonea">
                                     <button class="mdui-btn mdui-color-blue-a200 mdui-ripple mdui-center" onclick="urlopen('<%= data.goto %><%= parseInt(data.currentPage) + 1 %>')">下一页</button>
                                 </a>
                                 <% } %>
-                                    <a>
+                                    <a class="phonea">
                                         <button class="mdui-btn mdui-color-blue-a200 mdui-ripple mdui-center" mdui-dialog="{target: '#page-dialog'}">
                                             跳转</button>
-                                    </a>
-                                    <a>
+                                    </a class="phonea">
+                                    <a class="phonea">
                                         <button class="mdui-btn mdui-color-blue-a200 mdui-ripple mdui-center" mdui-dialog="{target: '#search-dialog'}">
                                             查询</button>
                                     </a>
-                                    <a>
+                                    <a class="phonea">
                                         <button class="mdui-btn mdui-color-blue-a200 mdui-ripple mdui-center" onclick="openDialog()">
                                             设置手机号</button>
                                     </a>
                                     <div class="mdui-toolbar-spacer"></div>
-                                    <a href="javascript:;" class="mdui-btn mdui-btn-icon" mdui-tooltip="{content: '导出'}" mdui-dialog="{target: '#export-dialog'}">
+                                    <a href="javascript:;" class="phonea mdui-btn mdui-btn-icon" mdui-tooltip="{content: '导出'}" mdui-dialog="{target: '#export-dialog'}">
                                         <i class="mdui-icon material-icons">&#xe2c4;</i>
                                     </a>
         </div>
     </header>
+    <!-- 侧边栏 -->
+    <div class="phoneshow mdui-drawer" id="content-drawer">
+        <ul class="mdui-list">
+            <li class="mdui-subheader">设备报修后台 - 第
+                <%= data.currentPage %>页/共
+                    <%= data.allPage %>页</li>
+            <% if(parseInt(data.currentPage) == 1){ %>
+                <li class="mdui-list-item mdui-ripple" onclick="urlopen('<%= data.goto %>1')">上一页</li>
+                <% }else{ %>
+                    <li class="mdui-list-item mdui-ripple" onclick="urlopen('<%= data.goto %><%= parseInt(data.currentPage) - 1 %>')">上一页</li>
+                    <% } %>
+                        <% if(parseInt(data.currentPage) == parseInt(data.allPage)){ %>
+                            <li class="mdui-list-item mdui-ripple" onclick="urlopen('<%= data.goto %><%= data.allPage %>')">下一页</li>
+                            <% }else{ %>
+                                <li class="mdui-list-item mdui-ripple" onclick="urlopen('<%= data.goto %><%= parseInt(data.currentPage) + 1 %>')">下一页</li>
+                                <% } %>
+                                    <li class="mdui-list-item mdui-ripple" mdui-dialog="{target: '#page-dialog'}">跳转</li>
+                                    <li class="mdui-list-item mdui-ripple" mdui-dialog="{target: '#search-dialog'}">查询</li>
+                                    <li class="mdui-list-item mdui-ripple" onclick="openDialog()">设置手机号</li>
+        </ul>
+    </div>
     <!-- 内容 -->
     <div class="mdui-container mdui-m-t-3 mdui-m-b-3">
-        <table id="ques-table" class="mdui-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>设备名称</th>
-                    <th>设备编号</th>
-                    <th>手机号码</th>
-                    <!-- <th mdui-tooltip="{content: '下拉框选择的内容'}">选择内容</th>
+        <div class="mdui-table-fluid">
+            <table id="ques-table" class="mdui-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>设备名称</th>
+                        <th>设备编号</th>
+                        <th>手机号码</th>
+                        <!-- <th mdui-tooltip="{content: '下拉框选择的内容'}">选择内容</th>
                     <th mdui-tooltip="{content: '文本域描述的内容'}">描述内容</th> -->
-                    <th>选择内容</th>
-                    <th>描述内容</th>
-                    <th>报修时间</th>
-                </tr>
-            </thead>
-            <tbody>
+                        <th>选择内容</th>
+                        <th>描述内容</th>
+                        <th>报修时间</th>
+                    </tr>
+                </thead>
+                <tbody>
 
-                <% 
+                    <% 
                 if(data.ques.length != 0){
                     for(var i=0; i<data.ques.length;i++){ 
                         var ques = data.ques[i];
                     %>
-                    <tr>
-                        <td>
-                            <%= i+1 %>
-                        </td>
-                        <td>
-                            <%= ques.deviceName %>
-                        </td>
-                        <td>
-                            <%= ques.deviceId %>
-                        </td>
-                        <td>
-                            <%= ques.tel %>
-                        </td>
-                        <td>
-                            <%= ques.selectContent %>
-                        </td>
-                        <td>
-                            <%= ques.textareaContent %>
-                        </td>
-                        <td>
-                            <%= dateFormat(ques.createTime) %>
-                        </td>
-                    </tr>
-                    <% }}else{ %>
                         <tr>
                             <td>
-                                无查询数据
+                                <%= i+1 %>
+                            </td>
+                            <td>
+                                <%= ques.deviceName %>
+                            </td>
+                            <td>
+                                <%= ques.deviceId %>
+                            </td>
+                            <td>
+                                <%= ques.tel %>
+                            </td>
+                            <td>
+                                <%= ques.selectContent %>
+                            </td>
+                            <td>
+                                <%= ques.textareaContent %>
+                            </td>
+                            <td>
+                                <%= dateFormat(ques.createTime) %>
                             </td>
                         </tr>
-                        <% } %>
-            </tbody>
-        </table>
+                        <% }}else{ %>
+                            <tr>
+                                <td>
+                                    无查询数据
+                                </td>
+                            </tr>
+                            <% } %>
+                </tbody>
+            </table>
+        </div>
     </div>
     <div class="mdui-dialog" id="export-dialog">
         <div class="mdui-dialog-title">请选择导出格式</div>
@@ -218,20 +267,22 @@
                     </div>
                 </div>
                 <div class="mdui-col-xs-3">
-                    <button class="mdui-btn mdui-color-blue-accent mdui-ripple mdui-btn-block addtel" onclick="addTel()">添加</button>
+                    <button class="mdui-btn mdui-color-blue-accent mdui-ripple addtel" onclick="addTel()">添加</button>
                 </div>
             </div>
         </div>
-        <table class="mdui-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>手机号</th>
-                    <th class="mdui-table-col-numeric">操作</th>
-                </tr>
-            </thead>
-            <tbody id="tbody-list"></tbody>
-        </table>
+        <div class="mdui-table-fluid">
+            <table class="mdui-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>手机号</th>
+                        <th class="mdui-table-col-numeric">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-list"></tbody>
+            </table>
+        </div>
     </div>
 
     <script>
@@ -254,7 +305,7 @@
                         for (var i = 0; i < data.result.length; i++) {
                             var u = data.result[i];
                             html += "<tr>";
-                            html += "    <td>" + (i+1) + "<\/td>";
+                            html += "    <td>" + (i + 1) + "<\/td>";
                             html += "    <td>" + u.tel + "<\/td>";
                             html += "    <td class=\"mdui-table-col-numeric\"><button id=\"" + u._id + "\" class=\"mdui-btn mdui-color-blue-accent mdui-ripple\" onclick=\"delTel(this)\">删除<\/button><\/td>";
                             html += "<\/tr>";
@@ -268,11 +319,11 @@
                 }
             });
         }
-        
-        function delTel(obj){
+
+        function delTel(obj) {
             var id = obj.id;
             var res = confirm('是否删除该手机号码');
-            if(res){
+            if (res) {
                 $.ajax({
                     method: 'post',
                     url: '/delSendtel',
@@ -295,7 +346,7 @@
 
         function addTel() {
             var tel = $(".sendtel").val();
-            if(testPhone(tel)){
+            if (testPhone(tel)) {
                 $.ajax({
                     method: 'post',
                     url: '/addSendtel',
@@ -312,7 +363,7 @@
                         });
                     }
                 });
-            }else{
+            } else {
                 mdui.snackbar({
                     message: '请输入正确的手机号码',
                     position: 'top'
